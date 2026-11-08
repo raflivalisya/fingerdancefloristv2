@@ -821,3 +821,60 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 /* Google Drive image loading fallback */
 .image-load-fallback{width:100%;height:100%;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#edf0e7;color:#68735e;font-size:30px}
 .image-load-fallback small{font:10px/1.4 Arial,sans-serif;letter-spacing:.04em}
+
+
+/* V2 mobile catalog: full-width photography inspired by the original Fingerdance landing image */
+@media (max-width: 700px) {
+  .catalog-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .catalog-topline,
+  .catalog-title-row,
+  .shop-tools,
+  .category-description,
+  .sub-filter,
+  .catalog-result-line,
+  .empty-state {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .catalog-topline { padding-top: 4px; }
+  .product-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    width: 100%;
+  }
+  .product-card {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  .product-photo {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    height: auto;
+    background: #e9e9df;
+  }
+  .product-photo img,
+  .product-photo iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    background: transparent;
+  }
+  .product-meta {
+    margin: 0 16px;
+    padding: 15px 2px 17px;
+    min-height: 0;
+    background: transparent;
+    border-bottom: 1px solid var(--line);
+  }
+  .product-meta h3 { font-size: 19px; }
+  .product-meta>b { font-size: 12px; }
+  .photo-view { font-size: 8px; padding: 12px 14px; }
+}
