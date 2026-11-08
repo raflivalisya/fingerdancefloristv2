@@ -72,3 +72,6 @@ Sebelum deploy versi ini, jalankan ulang file `supabase/v2-catalog-migration.sql
 ### Troubleshooting: tombol wallpaper terus "Menyimpan..."
 
 Versi terbaru memastikan status tombol selalu dipulihkan melalui `finally`, membatasi request tulis hingga 15 detik, memeriksa sesi Supabase serta fungsi `is_florist_admin()`, dan menampilkan pesan yang membedakan masalah izin RLS, akun admin, tabel yang belum dimigrasikan, dan timeout koneksi. Jika muncul pesan izin admin, pastikan UUID pengguna Auth yang sedang login sudah tercatat pada `public.florist_admins`. Jalankan ulang bagian migrasi V2 untuk menerapkan grant dan policy tabel `florist_v2_site_settings`.
+
+### Navigasi kategori dan subkategori
+Tombol kategori utama berada di area wallpaper. Tombol subkategori akan muncul tepat di bawahnya berdasarkan nilai `subcategory` pada produk di kategori aktif. Memilih tombol akan memfilter katalog; tombol `SEMUA` menampilkan seluruh produk kategori aktif. Caption nama/jenis produk di bawah gambar disembunyikan agar foto tampil tanpa label, sementara tombol foto tetap membuka Quick View.

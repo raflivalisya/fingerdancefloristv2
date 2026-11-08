@@ -47,11 +47,11 @@ export default function Home() {
   const categoryName = (category) => typeof category === 'string' ? category : category?.name;
   const active = categories.find((c) => categoryName(c) === activeCategory) || categories[0];
   const categoryProducts = useMemo(() => products.filter((p) => p.category === activeCategory), [products, activeCategory]);
-  const subcategories = useMemo(() => ['Semua', ...new Set(categoryProducts.map((p) => p.subcategory).filter(Boolean))], [categoryProducts]);
-  const visibleProducts = categoryProducts.filter((p) => activeSubcategory === 'Semua' || p.subcategory === activeSubcategory);
+  const subcategories = useMemo(() => [...new Set(categoryProducts.map((p) => p.subcategory).filter(Boolean))], [categoryProducts]);
+  const visibleProducts = categoryProducts.filter((p) => !activeSubcategory || p.subcategory === activeSubcategory);
 
   useEffect(() => { if (categories.length && !activeCategory) setActiveCategory(categoryName(categories[0])); }, [categories, activeCategory]);
-  useEffect(() => { setActiveSubcategory('Semua'); }, [activeCategory]);
+  useEffect(() => { setActiveSubcategory(''); }, [activeCategory]);
 
   useEffect(() => {
     if (!selectedProduct) return undefined;
@@ -79,36 +79,33 @@ export default function Home() {
         <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
           <div className="wallpaper-brand">FINGER DANCE <span>FLORIST</span></div>
-          <nav className="wallpaper-category-nav" aria-label="Pilih kategori">
-            {categories.map((cat, i) => <a key={cat.id || categoryName(cat)} href={`#category-${i}`} className="wallpaper-category-button"><span>{cat.icon || ['💐','🌷','🎁'][i % 3]}</span>{categoryName(cat)}</a>)}
-          </nav>
+          <div className="wallpaper-nav-stack">
+            <nav className="wallpaper-category-nav" aria-label="Pilih kategori">
+              {categories.map((cat, i) => <button type="button" key={cat.id || categoryName(cat)} onClick={() => setActiveCategory(categoryName(cat))} className={`wallpaper-category-button${activeCategory === categoryName(cat) ? ' is-active' : ''}`} aria-pressed={activeCategory === categoryName(cat)}><span>{cat.icon || ['💐','🌷','🎁'][i % 3]}</span>{categoryName(cat)}</button>)}
+            </nav>
+            {subcategories.length > 0 && <nav className="wallpaper-subcategory-nav" aria-label="Pilih jenis produk">
+              <button type="button" className={`wallpaper-subcategory-button${!activeSubcategory ? ' is-active' : ''}`} onClick={() => setActiveSubcategory('')}>SEMUA</button>
+              {subcategories.map((subcategory) => <button type="button" key={subcategory} className={`wallpaper-subcategory-button${activeSubcategory === subcategory ? ' is-active' : ''}`} onClick={() => setActiveSubcategory(subcategory)}>{subcategory}</button>)}
+            </nav>}
+          </div>
           <a className="wallpaper-chat-button" href={waLink(null)} target="_blank" rel="noreferrer">CHAT FLORIST ↗</a>
           <div className="wallpaper-scroll">SCROLL TO EXPLORE ↓</div>
         </div>
       </section>
 
       <div className="wallpaper-catalog">
-        {loading ? <div className="empty-state">Menyiapkan koleksi bunga untukmu…</div> : loadError && !products.length ? <div className="empty-state">{loadError}<small>Produk dapat dikelola setelah konfigurasi Supabase selesai.</small></div> : categories.map((cat, i) => {
-          const name = categoryName(cat);
-          const items = products.filter((product) => product.category === name);
-          return (
-            <section className="wallpaper-category-section" id={`category-${i}`} key={cat.id || name}>
-              <div className="wallpaper-category-heading">
-                <span>{cat.icon || '✿'} &nbsp; COLLECTION 0{i + 1}</span>
-                <h2>{name}</h2>
-                <p>{cat.description || `Koleksi spesial ${name} dari Fingerdance Florist.`}</p>
-              </div>
-              {items.length ? <div className="wallpaper-product-list">
-                {items.map((product, index) => (
-                  <button className="wallpaper-product" key={product.id} onClick={() => setSelectedProduct(product)}>
-                    <div className="wallpaper-product-image">{product.image ? <ProductMedia src={product.image} alt={product.name || name} /> : <div className="photo-placeholder">✿</div>}<span className="wallpaper-product-number">0{index + 1}</span><span className="wallpaper-product-quick">QUICK VIEW ↗</span></div>
-                    <div className="wallpaper-product-caption"><div><small>{product.subcategory || name}</small><h3>{product.name || product.subcategory || name}</h3></div><b>{money(product.price)}</b></div>
-                  </button>
-                ))}
-              </div> : <div className="wallpaper-empty">Koleksi {name} akan segera hadir.</div>}
-            </section>
-          );
-        })}
+        {loading ? <div className="empty-state">Menyiapkan koleksi bunga untukmu…</div> : loadError && !products.length ? <div className="empty-state">{loadError}<small>Produk dapat dikelola setelah konfigurasi Supabase selesai.</small></div> : active ? (() => {
+          const name = categoryName(active);
+          return <section className="wallpaper-category-section" key={active.id || name}>
+            {visibleProducts.length ? <div className="wallpaper-product-list">
+              {visibleProducts.map((product, index) => (
+                <button type="button" className="wallpaper-product" key={product.id} onClick={() => setSelectedProduct(product)} aria-label={`Lihat detail ${product.name || product.subcategory || name}`}>
+                  <div className="wallpaper-product-image">{product.image ? <ProductMedia src={product.image} alt={product.name || name} /> : <div className="photo-placeholder">✿</div>}<span className="wallpaper-product-number">{String(index + 1).padStart(2, '0')}</span><span className="wallpaper-product-quick">QUICK VIEW ↗</span></div>
+                </button>
+              ))}
+            </div> : <div className="wallpaper-empty">{categoryProducts.length ? 'Tidak ada produk pada jenis ini.' : `Koleksi ${name} akan segera hadir.`}</div>}
+          </section>;
+        })() : null}
       </div>
 
       <footer className="wallpaper-footer"><span>FINGERDANCE FLORIST · BANDAR LAMPUNG</span><a href={waLink(null)} target="_blank" rel="noreferrer">ORDER VIA WHATSAPP ↗</a><a href="/admin">ADMIN ↗</a></footer>

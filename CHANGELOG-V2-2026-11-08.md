@@ -17,3 +17,10 @@ Run `supabase/v2-catalog-migration.sql` in Supabase SQL Editor before deploying 
 - Save handler now validates desktop/mobile URLs, checks the active Supabase session and `is_florist_admin()` authorization before writing.
 - Adds a 15-second abort timeout for the admin check and wallpaper upsert, actionable error messages for RLS/missing-table failures, and `try/catch/finally` so the save button always leaves its busy state.
 - Wallpaper migration explicitly grants public read and authenticated insert/update table privileges; RLS remains the authorization boundary.
+
+## 2026-11-08 – Navigasi subkategori di hero
+- Tombol kategori utama kini memilih kategori aktif tanpa anchor link.
+- Tombol subkategori dinamis ditampilkan tepat di bawah tombol kategori pada area wallpaper.
+- Katalog menampilkan produk sesuai kategori dan subkategori terpilih.
+- Caption nama/subjenis produk di bawah foto dihilangkan; foto produk tetap dapat dibuka melalui Quick View.
+- Tidak ada perubahan skema database atau tabel website V1.
