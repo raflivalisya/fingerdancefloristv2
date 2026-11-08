@@ -32,10 +32,9 @@ Run `supabase/v2-catalog-migration.sql` in Supabase SQL Editor before deploying 
 - Respect reduced-motion preferences and reveal the hero fallback if the image cannot be loaded.
 - No database schema or V1 catalog changes.
 
-## iOS Safari hero loading compatibility
-- Keep hero branding and category/subcategory navigation visible while the remote wallpaper loads or fails.
-- Remove the large centered placeholder title during the initial no-wallpaper state; retain the visual gradient fallback.
-- Add a `100vh` fallback before `100svh` sizing for Safari viewport compatibility.
-- Keep the wallpaper image visually separate from the always-available hero controls.
-- No Supabase schema, product, transaction, invoice, or V1 website changes.
 
+## 2026-11-08 — Fix katalog kosong pada iOS/semua perangkat
+- Normalisasi nama kategori dan subkategori (trim, spasi, dan huruf besar/kecil) saat filter katalog.
+- Mendukung pencocokan berdasarkan `category_id` bila kolom tersebut tersedia pada record.
+- Filter `Semua` tidak lagi bergantung pada kecocokan string kosong.
+- Pesan katalog kosong dibuat lebih jelas agar admin dapat membedakan produk belum tersedia dari jenis produk yang kosong.

@@ -57,10 +57,26 @@ export default function Home() {
   }, []);
 
   const categoryName = (category) => typeof category === 'string' ? category : category?.name;
-  const active = categories.find((c) => categoryName(c) === activeCategory) || categories[0];
-  const categoryProducts = useMemo(() => products.filter((p) => p.category === activeCategory), [products, activeCategory]);
-  const subcategories = useMemo(() => [...new Set(categoryProducts.map((p) => p.subcategory).filter(Boolean))], [categoryProducts]);
-  const visibleProducts = categoryProducts.filter((p) => !activeSubcategory || p.subcategory === activeSubcategory);
+  const normalizeLabel = (value) => String(value ?? '').normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase('id-ID');
+  const active = categories.find((c) => normalizeLabel(categoryName(c)) === normalizeLabel(activeCategory)) || categories[0];
+  const categoryProducts = useMemo(() => products.filter((product) => {
+    // Support both the current text-based category column and older records
+    // that may also contain a category_id. Normalize case/spacing for iOS
+    // and Android consistency; database text comparisons are otherwise exact.
+    const productCategory = normalizeLabel(product.category);
+    const selectedCategory = normalizeLabel(activeCategory);
+    const matchesName = productCategory && productCategory === selectedCategory;
+    const matchesId = active?.id != null && product.category_id != null &&
+      String(product.category_id) === String(active.id);
+    return matchesName || matchesId;
+  }), [products, activeCategory, active?.id]);
+  const subcategories = useMemo(() => {
+    const values = categoryProducts.map((product) => String(product.subcategory ?? '').trim()).filter(Boolean);
+    return [...new Map(values.map((value) => [normalizeLabel(value), value])).values()];
+  }, [categoryProducts]);
+  const visibleProducts = categoryProducts.filter((product) =>
+    !normalizeLabel(activeSubcategory) || normalizeLabel(product.subcategory) === normalizeLabel(activeSubcategory)
+  );
 
   useEffect(() => { if (categories.length && !activeCategory) setActiveCategory(categoryName(categories[0])); }, [categories, activeCategory]);
   useEffect(() => { setActiveSubcategory(''); }, [activeCategory]);
@@ -94,7 +110,7 @@ export default function Home() {
         <div className="wallpaper-hero-placeholder wallpaper-hero-loading-placeholder" aria-hidden="true" />
         {activeWallpaper ? <div className="wallpaper-hero-image">
           <ProductMedia src={activeWallpaper} alt="Finger Dance Florist wallpaper" loading="eager" fetchPriority="high" onLoad={() => setHeroImageReady(true)} onError={() => setHeroImageReady(true)} />
-        </div> : <div className="wallpaper-hero-placeholder" aria-hidden="true" />}
+        </div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
         <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
           <div className="wallpaper-brand">FINGER DANCE <span>FLORIST</span></div>
@@ -122,7 +138,13 @@ export default function Home() {
                   <div className="wallpaper-product-image">{product.image ? <ProductMedia src={product.image} alt={product.name || name} /> : <div className="photo-placeholder">✿</div>}<span className="wallpaper-product-number">{String(index + 1).padStart(2, '0')}</span><span className="wallpaper-product-quick">QUICK VIEW ↗</span></div>
                 </button>
               ))}
-            </div> : <div className="wallpaper-empty">{categoryProducts.length ? 'Tidak ada produk pada jenis ini.' : `Koleksi ${name} akan segera hadir.`}</div>}
+            </div> : <div className="wallpaper-empty">
+              {categoryProducts.length
+                ? 'Tidak ada produk pada jenis ini.'
+                : loading
+                  ? 'Memuat koleksi…'
+                  : `Produk kategori ${name} belum tersedia atau belum diaktifkan oleh admin.`}
+            </div>}
           </section>;
         })() : null}
       </div>
