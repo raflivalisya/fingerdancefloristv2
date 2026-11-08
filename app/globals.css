@@ -889,8 +889,7 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 .v2-wallpaper-shop > .site-header,
 .v2-wallpaper-shop > .mobile-dock { display:none !important; }
 .wallpaper-hero {
-  position:relative; width:100%; min-height:100vh; height:100vh;
-  min-height:100svh; height:100svh;
+  position:relative; width:100%; min-height:640px; height:100vh; height:100svh;
   overflow:hidden; isolation:isolate; background:#28372f;
 }
 .wallpaper-hero-image,.wallpaper-hero-image iframe,.wallpaper-hero-image img {
@@ -993,7 +992,7 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 .wallpaper-footer a { color:#f0c49e; text-decoration:none; }
 .v2-wallpaper-shop .product-modal { z-index:100; }
 @media(max-width:700px) {
-  .wallpaper-hero { height:100svh; min-height:640px; }
+  .wallpaper-hero { height:100vh; height:100svh; min-height:640px; }
   .wallpaper-hero-desktop { display:none; }
   .wallpaper-hero-mobile { display:block; }
   .wallpaper-hero-image iframe,.wallpaper-hero-image img { object-fit:cover; }
@@ -1094,13 +1093,12 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   transition:opacity .45s ease;
 }
 .wallpaper-hero.is-wallpaper-ready .wallpaper-hero-image { opacity:1; }
-/* Keep branding, category navigation and actions visible even if the
-   remote wallpaper is slow, blocked, or unavailable in Safari iOS. */
-.wallpaper-hero-content {
-  opacity:1 !important;
-  visibility:visible !important;
-  transition:opacity .25s ease;
+/* Keep navigation visible even if an iOS browser stalls the wallpaper request. */
+.wallpaper-hero.is-wallpaper-loading .wallpaper-hero-content {
+  opacity:1;
+  visibility:visible;
 }
+.wallpaper-hero-content { transition:opacity .25s ease; }
 @media (prefers-reduced-motion: reduce) {
   .wallpaper-hero-image,.wallpaper-hero-content { transition:none; }
 }
