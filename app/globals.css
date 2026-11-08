@@ -1011,3 +1011,36 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   .wallpaper-product-caption { padding:15px 16px 20px; }
   .wallpaper-footer { flex-direction:column; padding:25px 18px 90px; }
 }
+
+/* V2 product quick-view dialog */
+.v2-product-modal-backdrop {
+  position:fixed; inset:0; z-index:200; display:grid; place-items:center;
+  padding:22px; background:rgba(12,17,14,.78); backdrop-filter:blur(7px);
+}
+.v2-product-modal {
+  position:relative; display:grid; grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+  width:min(100%,1000px); max-height:min(88svh,850px); overflow:auto;
+  background:#f4f1e8; color:#26372f; box-shadow:0 25px 90px #0006;
+}
+.v2-product-modal-close {
+  position:absolute; z-index:2; top:12px; right:12px; width:42px; height:42px;
+  border:0; border-radius:50%; background:#26372f; color:#fff; font-size:27px; line-height:1;
+}
+.v2-product-modal-media { min-height:440px; background:#e5e2d8; }
+.v2-product-modal-media img,.v2-product-modal-media iframe {
+  display:block; width:100%; height:100%; min-height:440px; border:0; object-fit:cover;
+}
+.v2-product-modal-info { align-self:center; padding:clamp(26px,5vw,58px); }
+.v2-product-modal-kicker { color:#a75b40; font:700 9px Arial,sans-serif; letter-spacing:.2em; text-transform:uppercase; }
+.v2-product-modal-info h2 { margin:15px 0; color:#26372f; font:normal clamp(30px,4vw,48px)/1.05 Georgia,serif; }
+.v2-product-modal-info>strong { display:block; color:#81412e; font:700 16px Arial,sans-serif; }
+.v2-product-modal-info p { margin:20px 0 26px; color:#68766b; font:14px/1.8 Arial,sans-serif; white-space:pre-line; }
+.v2-product-modal-order { display:inline-flex; padding:16px 20px; background:#26372f; color:#fff; font:700 10px Arial,sans-serif; letter-spacing:.12em; }
+@media(max-width:700px) {
+  .v2-product-modal-backdrop { padding:12px; }
+  .v2-product-modal { display:block; width:100%; max-height:92svh; }
+  .v2-product-modal-media,.v2-product-modal-media img,.v2-product-modal-media iframe { min-height:0; height:48svh; max-height:520px; }
+  .v2-product-modal-info { padding:25px 22px 28px; }
+  .v2-product-modal-info h2 { font-size:34px; }
+  .v2-product-modal-close { top:10px; right:10px; }
+}

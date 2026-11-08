@@ -25,7 +25,6 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
-  const [search, setSearch] = useState('');
 
   useEffect(() => {
     async function loadCatalog() {
@@ -46,20 +45,24 @@ export default function Home() {
   const active = categories.find((c) => categoryName(c) === activeCategory) || categories[0];
   const categoryProducts = useMemo(() => products.filter((p) => p.category === activeCategory), [products, activeCategory]);
   const subcategories = useMemo(() => ['Semua', ...new Set(categoryProducts.map((p) => p.subcategory).filter(Boolean))], [categoryProducts]);
-  const visibleProducts = categoryProducts.filter((p) =>
-    (activeSubcategory === 'Semua' || p.subcategory === activeSubcategory) &&
-    `${p.name || ''} ${p.subcategory || ''}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const visibleProducts = categoryProducts.filter((p) => activeSubcategory === 'Semua' || p.subcategory === activeSubcategory);
 
   useEffect(() => { if (categories.length && !activeCategory) setActiveCategory(categoryName(categories[0])); }, [categories, activeCategory]);
   useEffect(() => { setActiveSubcategory('Semua'); }, [activeCategory]);
 
+  useEffect(() => {
+    if (!selectedProduct) return undefined;
+    const handleKeyDown = (event) => { if (event.key === 'Escape') setSelectedProduct(null); };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedProduct]);
+
   const waLink = (product) => {
-    const message = encodeURIComponent(`Halo Fingerdance Florist, saya tertarik dengan ${product?.name || product?.subcategory || 'produk'}${product?.price ? ` (${money(product.price)})` : ''}. Bisa minta informasi dan cara pemesanannya?`);
+    const message = encodeURIComponent(`Halo Fingerdance Florist, saya ingin memesan ${product?.name || product?.subcategory || 'produk'}${product?.price != null ? ` dengan harga ${money(product.price)}` : ''}. Mohon informasi ketersediaan dan cara pemesanannya.`);
     return WA_NUMBER ? `https://wa.me/${WA_NUMBER.replace(/\D/g, '')}?text=${message}` : `https://wa.me/?text=${message}`;
   };
 
-  const heroProduct = products.find((p) => p.image) || null;
+  const heroProduct = products.find((p) => p.is_active !== false && p.image) || null;
 
   return (
     <main className="site-shell v2-wallpaper-shop">
@@ -88,7 +91,7 @@ export default function Home() {
                 <p>{cat.description || `Koleksi spesial ${name} dari Fingerdance Florist.`}</p>
               </div>
               {items.length ? <div className="wallpaper-product-list">
-                {items.filter((product) => `${product.name || ''} ${product.subcategory || ''}`.toLowerCase().includes(search.toLowerCase())).map((product, index) => (
+                {items.map((product, index) => (
                   <button className="wallpaper-product" key={product.id} onClick={() => setSelectedProduct(product)}>
                     <div className="wallpaper-product-image">{product.image ? <ProductMedia src={product.image} alt={product.name || name} /> : <div className="photo-placeholder">✿</div>}<span className="wallpaper-product-number">0{index + 1}</span><span className="wallpaper-product-quick">QUICK VIEW ↗</span></div>
                     <div className="wallpaper-product-caption"><div><small>{product.subcategory || name}</small><h3>{product.name || product.subcategory || name}</h3></div><b>{money(product.price)}</b></div>
@@ -101,7 +104,23 @@ export default function Home() {
       </div>
 
       <footer className="wallpaper-footer"><span>FINGERDANCE FLORIST · BANDAR LAMPUNG</span><a href={waLink(null)} target="_blank" rel="noreferrer">ORDER VIA WHATSAPP ↗</a><a href="/admin">ADMIN ↗</a></footer>
-      {modal}
+      {selectedProduct && (
+        <div className="v2-product-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}>
+          <section className="v2-product-modal" role="dialog" aria-modal="true" aria-labelledby="v2-product-modal-title">
+            <button type="button" className="v2-product-modal-close" onClick={() => setSelectedProduct(null)} aria-label="Tutup detail produk">×</button>
+            <div className="v2-product-modal-media">
+              {selectedProduct.image ? <ProductMedia src={selectedProduct.image} alt={selectedProduct.name || selectedProduct.subcategory || 'Foto produk'} /> : <div className="photo-placeholder">✿</div>}
+            </div>
+            <div className="v2-product-modal-info">
+              <span className="v2-product-modal-kicker">{selectedProduct.subcategory || selectedProduct.category || 'FINGERDANCE COLLECTION'}</span>
+              <h2 id="v2-product-modal-title">{selectedProduct.name || selectedProduct.subcategory || 'Produk Finger Dance Florist'}</h2>
+              <strong>{money(selectedProduct.price)}</strong>
+              {selectedProduct.description && <p>{selectedProduct.description}</p>}
+              <a className="v2-product-modal-order" href={waLink(selectedProduct)} target="_blank" rel="noreferrer">PESAN VIA WHATSAPP ↗</a>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 

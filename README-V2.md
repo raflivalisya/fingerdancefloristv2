@@ -51,3 +51,13 @@ npm run dev
 ## Catatan
 
 Modul laporan saat ini merupakan rekap transaksi/pesanan dari tabel bersama. SQL yang diberikan belum menyediakan tabel buku kas/pengeluaran operasional, sehingga aplikasi ini tidak menyebut omzet sebagai laba bersih dan tidak menambahkan modul pengeluaran fiktif.
+
+## Perbaikan paket V2 (8 November 2026)
+
+- Quick View kini memakai state `selectedProduct`; dialog menampilkan foto, nama, kategori, deskripsi, harga, dan tombol pemesanan WhatsApp.
+- Dialog dapat ditutup melalui tombol X, klik area luar dialog, atau tombol Escape.
+- Referensi `{modal}` yang tidak terdefinisi sudah dihapus.
+- Filter pencarian tersembunyi dihapus agar pengalaman katalog sesuai konsep tanpa search bar.
+- Komponen gambar tetap menormalisasi tautan berbagi Google Drive melalui `SmartImage`.
+
+Paket ini belum dinyatakan lolos `next build`: pemasangan dependensi pada lingkungan pemeriksaan mengalami timeout, sehingga perintah build tidak dapat menemukan executable `next`. Jalankan `npm ci` lalu `npm run build` di lingkungan lokal atau pipeline Vercel sebelum deployment.
