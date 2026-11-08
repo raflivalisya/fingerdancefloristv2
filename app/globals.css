@@ -897,6 +897,7 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 }
 .wallpaper-hero-image iframe,.wallpaper-hero-image img { object-fit:cover; object-position:center; }
 .wallpaper-hero-image img { display:block; }
+.wallpaper-hero-mobile { display:none; }
 .wallpaper-hero-shade {
   position:absolute; inset:0; z-index:1;
   background:linear-gradient(180deg,rgba(15,20,17,.24) 0%,rgba(15,20,17,.04) 34%,rgba(15,20,17,.14) 58%,rgba(12,17,14,.68) 100%);
@@ -992,6 +993,8 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 .v2-wallpaper-shop .product-modal { z-index:100; }
 @media(max-width:700px) {
   .wallpaper-hero { height:100svh; min-height:640px; }
+  .wallpaper-hero-desktop { display:none; }
+  .wallpaper-hero-mobile { display:block; }
   .wallpaper-hero-image iframe,.wallpaper-hero-image img { object-fit:cover; }
   .wallpaper-hero-content { padding:25px 14px 28px; }
   .wallpaper-brand { margin-top:8px; font-size:20px; }
@@ -1043,4 +1046,12 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   .v2-product-modal-info { padding:25px 22px 28px; }
   .v2-product-modal-info h2 { font-size:34px; }
   .v2-product-modal-close { top:10px; right:10px; }
+}
+
+/* Separate desktop/mobile hero wallpaper controls (V2) */
+.wallpaper-hero-desktop { display:block; }
+.wallpaper-hero-mobile { display:none; }
+@media (max-width:700px) {
+  .wallpaper-hero-desktop { display:none; }
+  .wallpaper-hero-mobile { display:block; }
 }

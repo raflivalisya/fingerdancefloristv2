@@ -61,3 +61,10 @@ Modul laporan saat ini merupakan rekap transaksi/pesanan dari tabel bersama. SQL
 - Komponen gambar tetap menormalisasi tautan berbagi Google Drive melalui `SmartImage`.
 
 Paket ini belum dinyatakan lolos `next build`: pemasangan dependensi pada lingkungan pemeriksaan mengalami timeout, sehingga perintah build tidak dapat menemukan executable `next`. Jalankan `npm ci` lalu `npm run build` di lingkungan lokal atau pipeline Vercel sebelum deployment.
+
+
+## Pengaturan Hero Wallpaper (V2)
+
+Menu Admin → **Hero Wallpaper** mengelola gambar layar penuh secara independen dari foto produk. Isi URL wallpaper desktop; URL wallpaper HP bersifat opsional dan akan memakai gambar desktop jika kosong. Admin juga dapat mengatur intensitas overlay.
+
+Sebelum deploy versi ini, jalankan ulang file `supabase/v2-catalog-migration.sql` pada Supabase SQL Editor. Migrasi menambahkan tabel `florist_v2_site_settings` saja dan tidak mengubah tabel katalog V1 maupun transaksi bersama. Gunakan URL Google Drive publik dengan akses **Anyone with the link**.

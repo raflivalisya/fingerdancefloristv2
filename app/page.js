@@ -20,6 +20,7 @@ function ProductMedia({ src, alt }) {
 export default function Home() {
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [products, setProducts] = useState([]);
+  const [heroSettings, setHeroSettings] = useState(null);
   const [activeCategory, setActiveCategory] = useState('');
   const [activeSubcategory, setActiveSubcategory] = useState('Semua');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -29,13 +30,15 @@ export default function Home() {
   useEffect(() => {
     async function loadCatalog() {
       if (!supabase) { setLoading(false); setLoadError('Hubungkan Supabase untuk menampilkan katalog.'); return; }
-      const [catResult, productResult] = await Promise.all([
+      const [catResult, productResult, heroResult] = await Promise.all([
         supabase.from('florist_v2_categories').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('florist_v2_products').select('*').order('id', { ascending: false }),
+        supabase.from('florist_v2_site_settings').select('hero_desktop_image, hero_mobile_image, hero_overlay_opacity').eq('id', 1).maybeSingle(),
       ]);
       if (catResult.data?.length) setCategories(catResult.data);
       if (productResult.error) setLoadError('Katalog belum dapat dimuat. Periksa konfigurasi database.');
       else setProducts((productResult.data || []).filter((p) => p.is_active !== false));
+      if (heroResult.data) setHeroSettings(heroResult.data);
       setLoading(false);
     }
     loadCatalog();
@@ -63,12 +66,17 @@ export default function Home() {
   };
 
   const heroProduct = products.find((p) => p.is_active !== false && p.image) || null;
+  const desktopWallpaper = heroSettings?.hero_desktop_image || heroProduct?.image || '';
+  const mobileWallpaper = heroSettings?.hero_mobile_image || desktopWallpaper;
 
   return (
     <main className="site-shell v2-wallpaper-shop">
       <section className="wallpaper-hero" aria-label="Finger Dance Florist">
-        {heroProduct?.image ? <div className="wallpaper-hero-image"><ProductMedia src={heroProduct.image} alt="Finger Dance Florist collection" /></div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
-        <div className="wallpaper-hero-shade" />
+        {desktopWallpaper ? <div className="wallpaper-hero-image">
+          <div className="wallpaper-hero-desktop"><ProductMedia src={desktopWallpaper} alt="Finger Dance Florist wallpaper" /></div>
+          <div className="wallpaper-hero-mobile"><ProductMedia src={mobileWallpaper} alt="Finger Dance Florist wallpaper mobile" /></div>
+        </div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
+        <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
           <div className="wallpaper-brand">FINGER DANCE <span>FLORIST</span></div>
           <nav className="wallpaper-category-nav" aria-label="Pilih kategori">

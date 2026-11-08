@@ -58,3 +58,28 @@ create policy "Admins manage V2 products"
 -- Transaksi V2 tetap masuk ke florist_orders dan florist_order_items.
 -- florist_order_items.product_id akan NULL untuk produk V2; nama/harga
 -- disimpan sebagai snapshot sehingga tidak bergantung pada tabel products V1.
+
+
+-- Pengaturan tampilan V2: wallpaper hero terpisah dari foto produk.
+-- Satu baris (id=1) menyimpan wallpaper desktop, mobile, dan tingkat overlay.
+create table if not exists public.florist_v2_site_settings (
+  id integer primary key check (id = 1),
+  hero_desktop_image text not null default '',
+  hero_mobile_image text,
+  hero_overlay_opacity numeric(3,2) not null default 0.28 check (hero_overlay_opacity >= 0 and hero_overlay_opacity <= 0.70),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.florist_v2_site_settings enable row level security;
+drop policy if exists "Public can read V2 site settings" on public.florist_v2_site_settings;
+create policy "Public can read V2 site settings"
+  on public.florist_v2_site_settings for select
+  using (true);
+drop policy if exists "Admins manage V2 site settings" on public.florist_v2_site_settings;
+create policy "Admins manage V2 site settings"
+  on public.florist_v2_site_settings for all to authenticated
+  using (public.is_florist_admin())
+  with check (public.is_florist_admin());
+
+insert into public.florist_v2_site_settings (id) values (1)
+on conflict (id) do nothing;
