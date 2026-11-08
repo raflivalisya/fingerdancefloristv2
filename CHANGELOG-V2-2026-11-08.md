@@ -24,3 +24,10 @@ Run `supabase/v2-catalog-migration.sql` in Supabase SQL Editor before deploying 
 - Katalog menampilkan produk sesuai kategori dan subkategori terpilih.
 - Caption nama/subjenis produk di bawah foto dihilangkan; foto produk tetap dapat dibuka melalui Quick View.
 - Tidak ada perubahan skema database atau tabel website V1.
+
+## Hero wallpaper loading polish
+- Load only the wallpaper matching the current viewport (mobile or desktop), instead of mounting both responsive wallpaper images at once.
+- Add a high-priority image preload for the selected non-Canva wallpaper and eager image loading.
+- Keep hero navigation/content hidden until the selected wallpaper has loaded; show a neutral floral gradient placeholder during loading and reveal content with a subtle opacity transition.
+- Respect reduced-motion preferences and reveal the hero fallback if the image cannot be loaded.
+- No database schema or V1 catalog changes.

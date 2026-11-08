@@ -1082,3 +1082,22 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   .wallpaper-subcategory-nav { gap:6px; max-height:19vh; padding:0 2px; }
   .wallpaper-subcategory-button { min-height:33px; padding:0 11px; font-size:8px; }
 }
+
+/* Prevent hero text/navigation from flashing before its responsive wallpaper is ready. */
+.wallpaper-hero-loading-placeholder {
+  z-index:0;
+  background:radial-gradient(circle at 50% 35%,#9e725d 0%,#59483e 42%,#26372f 100%);
+}
+.wallpaper-hero-image {
+  opacity:0;
+  transition:opacity .45s ease;
+}
+.wallpaper-hero.is-wallpaper-ready .wallpaper-hero-image { opacity:1; }
+.wallpaper-hero.is-wallpaper-loading .wallpaper-hero-content {
+  opacity:0;
+  visibility:hidden;
+}
+.wallpaper-hero-content { transition:opacity .25s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .wallpaper-hero-image,.wallpaper-hero-content { transition:none; }
+}

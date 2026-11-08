@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { getImageCandidates } from '@/lib/supabase';
 
-export default function SmartImage({ src, alt = '', className, loading = 'lazy', onLoad, onError }) {
+export default function SmartImage({ src, alt = '', className, loading = 'lazy', fetchPriority, onLoad, onError }) {
   const candidates = useMemo(() => getImageCandidates(src), [src]);
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -18,6 +18,8 @@ export default function SmartImage({ src, alt = '', className, loading = 'lazy',
       src={candidates[candidateIndex]}
       alt={alt}
       loading={loading}
+      fetchPriority={fetchPriority}
+      decoding={loading === 'eager' ? 'sync' : 'async'}
       referrerPolicy="no-referrer"
       onLoad={onLoad}
       onError={(event) => {

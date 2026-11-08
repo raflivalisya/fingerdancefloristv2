@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { supabase, formatCanvaEmbedUrl } from '@/lib/supabase';
+import { supabase, formatCanvaEmbedUrl, formatImageUrl } from '@/lib/supabase';
 import SmartImage from '@/components/SmartImage';
 
 const DEFAULT_CATEGORIES = [
@@ -12,9 +12,11 @@ const DEFAULT_CATEGORIES = [
 const WA_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
 const money = (value) => value ? `Rp ${Number(value).toLocaleString('id-ID')}` : 'Hubungi kami';
 
-function ProductMedia({ src, alt }) {
+function ProductMedia({ src, alt, loading = 'lazy', fetchPriority, onLoad, onError }) {
   const embed = formatCanvaEmbedUrl(src);
-  return embed ? <iframe src={embed} title={alt} loading="lazy" allow="fullscreen" /> : <SmartImage src={src} alt={alt} loading="lazy" />;
+  return embed
+    ? <iframe src={embed} title={alt} loading={loading} allow="fullscreen" onLoad={onLoad} />
+    : <SmartImage src={src} alt={alt} loading={loading} fetchPriority={fetchPriority} onLoad={onLoad} onError={onError} />;
 }
 
 export default function Home() {
@@ -26,6 +28,16 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [heroImageReady, setHeroImageReady] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 700px)');
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener?.('change', updateViewport);
+    return () => mediaQuery.removeEventListener?.('change', updateViewport);
+  }, []);
 
   useEffect(() => {
     async function loadCatalog() {
@@ -68,13 +80,20 @@ export default function Home() {
   const heroProduct = products.find((p) => p.is_active !== false && p.image) || null;
   const desktopWallpaper = heroSettings?.hero_desktop_image || heroProduct?.image || '';
   const mobileWallpaper = heroSettings?.hero_mobile_image || desktopWallpaper;
+  const activeWallpaper = isMobileViewport ? mobileWallpaper : desktopWallpaper;
+  const heroEmbed = formatCanvaEmbedUrl(activeWallpaper);
+
+  useEffect(() => {
+    setHeroImageReady(!activeWallpaper);
+  }, [activeWallpaper]);
 
   return (
     <main className="site-shell v2-wallpaper-shop">
-      <section className="wallpaper-hero" aria-label="Finger Dance Florist">
-        {desktopWallpaper ? <div className="wallpaper-hero-image">
-          <div className="wallpaper-hero-desktop"><ProductMedia src={desktopWallpaper} alt="Finger Dance Florist wallpaper" /></div>
-          <div className="wallpaper-hero-mobile"><ProductMedia src={mobileWallpaper} alt="Finger Dance Florist wallpaper mobile" /></div>
+      {activeWallpaper && !heroEmbed && <link rel="preload" as="image" href={formatImageUrl(activeWallpaper)} fetchPriority="high" />}
+      <section className={`wallpaper-hero${heroImageReady ? ' is-wallpaper-ready' : ' is-wallpaper-loading'}`} aria-label="Finger Dance Florist">
+        <div className="wallpaper-hero-placeholder wallpaper-hero-loading-placeholder" aria-hidden="true" />
+        {activeWallpaper ? <div className="wallpaper-hero-image">
+          <ProductMedia src={activeWallpaper} alt="Finger Dance Florist wallpaper" loading="eager" fetchPriority="high" onLoad={() => setHeroImageReady(true)} onError={() => setHeroImageReady(true)} />
         </div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
         <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
