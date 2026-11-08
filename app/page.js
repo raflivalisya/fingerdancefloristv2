@@ -94,7 +94,7 @@ export default function Home() {
         <div className="wallpaper-hero-placeholder wallpaper-hero-loading-placeholder" aria-hidden="true" />
         {activeWallpaper ? <div className="wallpaper-hero-image">
           <ProductMedia src={activeWallpaper} alt="Finger Dance Florist wallpaper" loading="eager" fetchPriority="high" onLoad={() => setHeroImageReady(true)} onError={() => setHeroImageReady(true)} />
-        </div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
+        </div> : <div className="wallpaper-hero-placeholder" aria-hidden="true" />}
         <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
           <div className="wallpaper-brand">FINGER DANCE <span>FLORIST</span></div>
