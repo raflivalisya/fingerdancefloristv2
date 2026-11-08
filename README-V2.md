@@ -68,3 +68,7 @@ Paket ini belum dinyatakan lolos `next build`: pemasangan dependensi pada lingku
 Menu Admin → **Hero Wallpaper** mengelola gambar layar penuh secara independen dari foto produk. Isi URL wallpaper desktop; URL wallpaper HP bersifat opsional dan akan memakai gambar desktop jika kosong. Admin juga dapat mengatur intensitas overlay.
 
 Sebelum deploy versi ini, jalankan ulang file `supabase/v2-catalog-migration.sql` pada Supabase SQL Editor. Migrasi menambahkan tabel `florist_v2_site_settings` saja dan tidak mengubah tabel katalog V1 maupun transaksi bersama. Gunakan URL Google Drive publik dengan akses **Anyone with the link**.
+
+### Troubleshooting: tombol wallpaper terus "Menyimpan..."
+
+Versi terbaru memastikan status tombol selalu dipulihkan melalui `finally`, membatasi request tulis hingga 15 detik, memeriksa sesi Supabase serta fungsi `is_florist_admin()`, dan menampilkan pesan yang membedakan masalah izin RLS, akun admin, tabel yang belum dimigrasikan, dan timeout koneksi. Jika muncul pesan izin admin, pastikan UUID pengguna Auth yang sedang login sudah tercatat pada `public.florist_admins`. Jalankan ulang bagian migrasi V2 untuk menerapkan grant dan policy tabel `florist_v2_site_settings`.

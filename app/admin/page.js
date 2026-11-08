@@ -72,12 +72,68 @@ export default function AdminPage() {
   }
   async function saveHero(e) {
     e.preventDefault();
-    if (!heroForm.hero_desktop_image.trim()) { setMessage('Masukkan URL wallpaper desktop terlebih dahulu.'); return; }
-    setBusy(true); setMessage('');
-    const payload = { id: 1, hero_desktop_image: heroForm.hero_desktop_image.trim(), hero_mobile_image: heroForm.hero_mobile_image.trim() || null, hero_overlay_opacity: Number(heroForm.hero_overlay_opacity) };
-    const { error } = await supabase.from('florist_v2_site_settings').upsert(payload, { onConflict: 'id' });
-    setBusy(false);
-    setMessage(error ? `Gagal menyimpan wallpaper: ${error.message}` : 'Wallpaper website berhasil disimpan. Muat ulang halaman website untuk melihat perubahan.');
+    if (!supabase) { setMessage('Supabase belum dikonfigurasi. Periksa environment variables Vercel.'); return; }
+
+    const desktopUrl = String(heroForm.hero_desktop_image || '').trim();
+    const mobileUrl = String(heroForm.hero_mobile_image || '').trim();
+    if (!desktopUrl) { setMessage('Masukkan URL wallpaper desktop terlebih dahulu.'); return; }
+    try {
+      new URL(desktopUrl);
+      if (mobileUrl) new URL(mobileUrl);
+    } catch {
+      setMessage('URL wallpaper tidak valid. Gunakan alamat lengkap yang diawali https://');
+      return;
+    }
+
+    setBusy(true);
+    setMessage('Memeriksa sesi admin dan menyimpan wallpaper…');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    try {
+      // Pastikan sesi masih aktif sebelum menulis ke tabel yang dilindungi RLS.
+      const { data: authData, error: authError } = await supabase.auth.getSession();
+      if (authError) throw new Error(`Sesi admin tidak dapat diperiksa: ${authError.message}`);
+      if (!authData?.session) throw new Error('Sesi login berakhir. Silakan logout lalu login kembali.');
+
+      // Beri pesan yang jelas bila akun belum terdaftar di florist_admins.
+      const { data: isAdmin, error: adminError } = await supabase.rpc('is_florist_admin').abortSignal(controller.signal);
+      if (adminError) throw new Error(`Tidak dapat memverifikasi hak admin: ${adminError.message}. Pastikan fungsi is_florist_admin() tersedia.`);
+      if (isAdmin !== true) throw new Error('Akun ini belum memiliki izin admin. Tambahkan UUID akun ke tabel florist_admins.');
+
+      const payload = {
+        id: 1,
+        hero_desktop_image: desktopUrl,
+        hero_mobile_image: mobileUrl || null,
+        hero_overlay_opacity: Math.min(0.7, Math.max(0, Number(heroForm.hero_overlay_opacity) || 0)),
+        updated_at: new Date().toISOString(),
+      };
+      const { data, error } = await supabase
+        .from('florist_v2_site_settings')
+        .upsert(payload, { onConflict: 'id' })
+        .select('id, hero_desktop_image, hero_mobile_image, hero_overlay_opacity')
+        .single()
+        .abortSignal(controller.signal);
+      if (error) {
+        if (error.code === '42501' || /row-level security|permission denied/i.test(error.message || '')) {
+          throw new Error('Ditolak oleh Row Level Security. Pastikan akun login terdaftar di florist_admins dan policy "Admins manage V2 site settings" sudah dijalankan.');
+        }
+        if (error.code === '42P01' || /does not exist/i.test(error.message || '')) {
+          throw new Error('Tabel florist_v2_site_settings belum tersedia. Jalankan migrasi supabase/v2-catalog-migration.sql di Supabase SQL Editor.');
+        }
+        throw new Error(error.message || 'Supabase menolak penyimpanan wallpaper.');
+      }
+      if (!data) throw new Error('Supabase tidak mengembalikan data setelah penyimpanan. Periksa policy INSERT/UPDATE tabel wallpaper.');
+      setHeroForm({ ...blankHero, ...data });
+      setMessage('Wallpaper website berhasil disimpan. Muat ulang website V2 untuk melihat perubahan.');
+    } catch (error) {
+      const isTimeout = error?.name === 'AbortError';
+      setMessage(isTimeout
+        ? 'Penyimpanan melewati batas 15 detik dan dibatalkan. Periksa koneksi Supabase, URL project, dan status layanan lalu coba lagi.'
+        : `Gagal menyimpan wallpaper: ${error?.message || 'Terjadi kesalahan yang tidak diketahui.'}`);
+    } finally {
+      clearTimeout(timeoutId);
+      setBusy(false);
+    }
   }
   async function deleteProduct(id) {
     if (!confirm('Hapus produk ini?')) return;

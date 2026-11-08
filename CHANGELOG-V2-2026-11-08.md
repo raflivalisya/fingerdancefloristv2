@@ -11,3 +11,9 @@
 
 ## Deployment note
 Run `supabase/v2-catalog-migration.sql` in Supabase SQL Editor before deploying this version.
+
+## Hero wallpaper save reliability
+
+- Save handler now validates desktop/mobile URLs, checks the active Supabase session and `is_florist_admin()` authorization before writing.
+- Adds a 15-second abort timeout for the admin check and wallpaper upsert, actionable error messages for RLS/missing-table failures, and `try/catch/finally` so the save button always leaves its busy state.
+- Wallpaper migration explicitly grants public read and authenticated insert/update table privileges; RLS remains the authorization boundary.

@@ -71,6 +71,9 @@ create table if not exists public.florist_v2_site_settings (
 );
 
 alter table public.florist_v2_site_settings enable row level security;
+-- Explicit table privileges are required in addition to RLS policies.
+grant select on public.florist_v2_site_settings to anon, authenticated;
+grant insert, update on public.florist_v2_site_settings to authenticated;
 drop policy if exists "Public can read V2 site settings" on public.florist_v2_site_settings;
 create policy "Public can read V2 site settings"
   on public.florist_v2_site_settings for select
