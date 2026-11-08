@@ -889,7 +889,8 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 .v2-wallpaper-shop > .site-header,
 .v2-wallpaper-shop > .mobile-dock { display:none !important; }
 .wallpaper-hero {
-  position:relative; width:100%; min-height:100svh; height:100svh;
+  position:relative; width:100%; min-height:100vh; height:100vh;
+  min-height:100svh; height:100svh;
   overflow:hidden; isolation:isolate; background:#28372f;
 }
 .wallpaper-hero-image,.wallpaper-hero-image iframe,.wallpaper-hero-image img {
@@ -1093,11 +1094,13 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   transition:opacity .45s ease;
 }
 .wallpaper-hero.is-wallpaper-ready .wallpaper-hero-image { opacity:1; }
-.wallpaper-hero.is-wallpaper-loading .wallpaper-hero-content {
-  opacity:0;
-  visibility:hidden;
+/* Keep branding, category navigation and actions visible even if the
+   remote wallpaper is slow, blocked, or unavailable in Safari iOS. */
+.wallpaper-hero-content {
+  opacity:1 !important;
+  visibility:visible !important;
+  transition:opacity .25s ease;
 }
-.wallpaper-hero-content { transition:opacity .25s ease; }
 @media (prefers-reduced-motion: reduce) {
   .wallpaper-hero-image,.wallpaper-hero-content { transition:none; }
 }

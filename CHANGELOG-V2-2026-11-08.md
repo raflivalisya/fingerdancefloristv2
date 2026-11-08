@@ -38,3 +38,11 @@ Run `supabase/v2-catalog-migration.sql` in Supabase SQL Editor before deploying 
 - Mendukung pencocokan berdasarkan `category_id` bila kolom tersebut tersedia pada record.
 - Filter `Semua` tidak lagi bergantung pada kecocokan string kosong.
 - Pesan katalog kosong dibuat lebih jelas agar admin dapat membedakan produk belum tersedia dari jenis produk yang kosong.
+
+
+## 2026-11-08 — Perbaikan layar hanya menampilkan tulisan brand
+- Menghapus perilaku menyembunyikan konten Hero ketika wallpaper belum selesai/gagal dimuat.
+- Placeholder wallpaper tidak lagi menampilkan teks besar yang dapat terlihat seperti satu-satunya konten.
+- Menambahkan fallback `100vh` sebelum `100svh` untuk Safari.
+- Memperbaiki normalisasi spasi kategori/subkategori (`/\s+/g`).
+- Menambahkan `try/catch/finally` dan pembatalan request pada pemuatan katalog agar status loading selalu selesai dan error baca Supabase dapat ditampilkan.

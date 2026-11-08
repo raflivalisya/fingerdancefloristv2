@@ -40,24 +40,36 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     async function loadCatalog() {
-      if (!supabase) { setLoading(false); setLoadError('Hubungkan Supabase untuk menampilkan katalog.'); return; }
-      const [catResult, productResult, heroResult] = await Promise.all([
-        supabase.from('florist_v2_categories').select('*').eq('is_active', true).order('sort_order'),
-        supabase.from('florist_v2_products').select('*').order('id', { ascending: false }),
-        supabase.from('florist_v2_site_settings').select('hero_desktop_image, hero_mobile_image, hero_overlay_opacity').eq('id', 1).maybeSingle(),
-      ]);
-      if (catResult.data?.length) setCategories(catResult.data);
-      if (productResult.error) setLoadError('Katalog belum dapat dimuat. Periksa konfigurasi database.');
-      else setProducts((productResult.data || []).filter((p) => p.is_active !== false));
-      if (heroResult.data) setHeroSettings(heroResult.data);
-      setLoading(false);
+      if (!supabase) {
+        if (!cancelled) { setLoadError('Koneksi katalog belum tersedia.'); setLoading(false); }
+        return;
+      }
+      try {
+        const [catResult, productResult, heroResult] = await Promise.all([
+          supabase.from('florist_v2_categories').select('*').eq('is_active', true).order('sort_order'),
+          supabase.from('florist_v2_products').select('*').order('id', { ascending: false }),
+          supabase.from('florist_v2_site_settings').select('hero_desktop_image, hero_mobile_image, hero_overlay_opacity').eq('id', 1).maybeSingle(),
+        ]);
+        if (cancelled) return;
+        if (catResult.data?.length) setCategories(catResult.data);
+        if (productResult.error) setLoadError('Katalog belum dapat dimuat. Periksa konfigurasi database dan izin baca (RLS).');
+        else setProducts((productResult.data || []).filter((product) => product.is_active !== false));
+        if (heroResult.data) setHeroSettings(heroResult.data);
+        if (catResult.error && !productResult.error) setLoadError('Kategori belum dapat dimuat. Periksa tabel kategori dan izin baca (RLS).');
+      } catch (error) {
+        if (!cancelled) setLoadError('Terjadi kendala saat menghubungkan katalog. Silakan muat ulang halaman.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
     loadCatalog();
+    return () => { cancelled = true; };
   }, []);
 
   const categoryName = (category) => typeof category === 'string' ? category : category?.name;
-  const normalizeLabel = (value) => String(value ?? '').normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase('id-ID');
+  const normalizeLabel = (value) => String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('id-ID');
   const active = categories.find((c) => normalizeLabel(categoryName(c)) === normalizeLabel(activeCategory)) || categories[0];
   const categoryProducts = useMemo(() => products.filter((product) => {
     // Support both the current text-based category column and older records
@@ -110,7 +122,7 @@ export default function Home() {
         <div className="wallpaper-hero-placeholder wallpaper-hero-loading-placeholder" aria-hidden="true" />
         {activeWallpaper ? <div className="wallpaper-hero-image">
           <ProductMedia src={activeWallpaper} alt="Finger Dance Florist wallpaper" loading="eager" fetchPriority="high" onLoad={() => setHeroImageReady(true)} onError={() => setHeroImageReady(true)} />
-        </div> : <div className="wallpaper-hero-placeholder">Fingerdance Florist</div>}
+        </div> : <div className="wallpaper-hero-placeholder wallpaper-hero-loading-placeholder" aria-hidden="true" />}
         <div className="wallpaper-hero-shade" style={heroSettings?.hero_overlay_opacity != null ? { background: `rgba(12,17,14,${Number(heroSettings.hero_overlay_opacity)})` } : undefined} />
         <div className="wallpaper-hero-content">
           <div className="wallpaper-brand">FINGER DANCE <span>FLORIST</span></div>
