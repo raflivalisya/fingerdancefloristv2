@@ -1110,7 +1110,7 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
   /* Desktop wallpaper follows the source image's natural ratio.
      Never crop with cover or enlarge a small source beyond its native pixels. */
   .wallpaper-hero {
-    width: 100%;
+    width: min(100%, 1440px);
     height: auto;
     min-height: 0;
     aspect-ratio: auto;
