@@ -1107,10 +1107,11 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 /* Desktop: keep the wallpaper hero aligned with the centered catalog column.
    Mobile rules above remain untouched. */
 @media (min-width: 701px) {
-  /* Desktop wallpaper follows the source image's natural ratio.
-     Never crop with cover or enlarge a small source beyond its native pixels. */
+  /* Desktop: keep the portrait wallpaper compact and centered.
+     Render the source at no more than 720 CSS pixels to avoid an oversized,
+     visibly soft image on wide monitors. The source aspect ratio is preserved. */
   .wallpaper-hero {
-    width: min(100%, 1440px);
+    width: min(100%, 720px);
     height: auto;
     min-height: 0;
     aspect-ratio: auto;
@@ -1134,7 +1135,7 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
     display: block;
     width: auto;
     height: auto;
-    max-width: 100%;
+    max-width: min(100%, 720px);
     max-height: none;
     object-fit: contain;
     object-position: center;
@@ -1144,7 +1145,8 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
     inset: auto;
     display: block;
     width: 100%;
-    height: min(75vw, 900px);
+    height: min(110vw, 960px);
+    max-width: 720px;
     border: 0;
   }
   .wallpaper-product-list {
