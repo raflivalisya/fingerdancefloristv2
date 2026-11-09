@@ -1104,43 +1104,34 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 }
 
 
-/* Desktop layout refinement: keep the immersive hero full-screen,
-   but constrain tall product artwork/photos to a readable centered column.
-   Mobile rules above remain unchanged. */
+/* Desktop: keep the wallpaper hero aligned with the centered catalog column.
+   Mobile rules above remain untouched. */
 @media (min-width: 701px) {
-  .wallpaper-category-heading {
-    width: min(100%, 1040px);
-    margin-inline: auto;
-    padding-left: clamp(28px, 4vw, 56px);
-    padding-right: clamp(28px, 4vw, 56px);
+  .wallpaper-hero {
+    width: min(100% - 48px, 960px);
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 2.1 / 1;
+    max-height: 620px;
+    margin: 28px auto 0;
   }
-
-  .wallpaper-product-list {
+  .wallpaper-hero-image,
+  .wallpaper-hero-image iframe,
+  .wallpaper-hero-image img {
     width: 100%;
-    align-items: center;
+    height: 100%;
   }
-
-  .wallpaper-product {
+  .wallpaper-hero-image iframe,
+  .wallpaper-hero-image img {
+    object-fit: cover;
+    object-position: center;
+  }
+  .wallpaper-product-list {
     width: min(100%, 960px);
     margin-inline: auto;
   }
-
-  .wallpaper-product-image {
-    width: 100%;
-    height: min(82vh, 1000px);
-    min-height: 560px;
+  .wallpaper-category-heading {
+    width: min(100%, 960px);
     margin-inline: auto;
-    background: #e5e2d8;
   }
-
-  .wallpaper-product-image img,
-  .wallpaper-product-image iframe {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-  }
-
-  .wallpaper-product-number { top: 20px; left: 20px; }
-  .wallpaper-product-quick { right: 20px; bottom: 20px; }
 }
