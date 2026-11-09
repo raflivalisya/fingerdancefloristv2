@@ -1107,24 +1107,45 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
 /* Desktop: keep the wallpaper hero aligned with the centered catalog column.
    Mobile rules above remain untouched. */
 @media (min-width: 701px) {
+  /* Desktop wallpaper follows the source image's natural ratio.
+     Never crop with cover or enlarge a small source beyond its native pixels. */
   .wallpaper-hero {
-    width: min(100% - 48px, 960px);
+    width: 100%;
     height: auto;
     min-height: 0;
-    aspect-ratio: 2.1 / 1;
-    max-height: 620px;
-    margin: 28px auto 0;
+    aspect-ratio: auto;
+    max-height: none;
+    margin: 0 auto;
+    overflow: hidden;
   }
-  .wallpaper-hero-image,
-  .wallpaper-hero-image iframe,
-  .wallpaper-hero-image img {
+  .wallpaper-hero-image {
+    position: relative;
+    inset: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 0;
   }
-  .wallpaper-hero-image iframe,
   .wallpaper-hero-image img {
-    object-fit: cover;
+    position: relative;
+    inset: auto;
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: none;
+    object-fit: contain;
     object-position: center;
+  }
+  .wallpaper-hero-image iframe {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: min(75vw, 900px);
+    border: 0;
   }
   .wallpaper-product-list {
     width: min(100%, 960px);
