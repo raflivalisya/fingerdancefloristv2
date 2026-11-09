@@ -1149,12 +1149,47 @@ body, .site-shell { background: var(--cream); color: var(--ink); }
     max-width: 720px;
     border: 0;
   }
-  .wallpaper-product-list {
-    width: min(100%, 960px);
+  /* Match the catalog column to the compact centered desktop wallpaper. */
+  .wallpaper-catalog {
+    width: min(100%, 720px);
     margin-inline: auto;
   }
-  .wallpaper-category-heading {
-    width: min(100%, 960px);
+  .wallpaper-category-section {
+    width: 100%;
     margin-inline: auto;
+  }
+  .wallpaper-category-heading,
+  .wallpaper-product-list {
+    width: 100%;
+    margin-inline: auto;
+  }
+  /* Let each product poster keep its natural proportions instead of
+     stretching to the old viewport-based 145vw image height. */
+  .wallpaper-product-image {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    background: #f4f1e8;
+  }
+  .wallpaper-product-image img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+  }
+  .wallpaper-product-image iframe {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    aspect-ratio: 0.62;
+    border: 0;
   }
 }
